@@ -11,6 +11,10 @@ app = Flask(__name__)
 def page1():
     return render_template('page1.html')
 
+@app.route('/')
+def HelloWord():
+    return render_template('index.html')
+
                                                                                                                                     
 if __name__ == "__main__":
   app.run(debug=True)
