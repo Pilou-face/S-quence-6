@@ -15,13 +15,24 @@ def page1():
 def page2():
     return render_template('page2.html')
 
-@app.route('/page3')
-def page3():
-    return render_template('page3.html')
+@app.route('/livres', methods=['GET', 'POST'])
+def afficher_livres():
+    if request.method == 'POST':
+        titre = request.form['titre']
+        auteur = request.form['auteur']
+        annee = request.form['annee_publication']
+        nouveau_livre = Livre(titre=titre, auteur=auteur, annee_publication=annee)
+        db.session.add(nouveau_livre)
+        db.session.commit()
+    livres = Livre.query.all()
+    return render_template('livres.html', livres=livres)
 
-@app.route('/page4')
-def page4():
-    return render_template('page4.html')
+@app.route('/supprimer_livre/<int:id>')
+def supprimer_livre(id):
+    livre = Livre.query.get_or_404(id)
+    db.session.delete(livre)
+    db.session.commit()
+    return redirect('/livres')
 
 @app.route('/')
 def HelloWord():
