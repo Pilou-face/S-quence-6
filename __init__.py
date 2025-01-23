@@ -11,6 +11,18 @@ app = Flask(__name__)
 def page1():
     return render_template('page1.html')
 
+@app.route('/page1')
+def page2():
+    return render_template('page2.html')
+
+@app.route('/page1')
+def page3():
+    return render_template('page3.html')
+
+@app.route('/page1')
+def page4():
+    return render_template('page4.html')
+
 @app.route('/')
 def HelloWord():
     return render_template('index.html')
