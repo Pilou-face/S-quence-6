@@ -1,20 +1,50 @@
 import sqlite3
 
-connection = sqlite3.connect('database.db')
+def init_db():
+    connection = sqlite3.connect('database.db')
 
-with open('schema.sql') as f:
-    connection.executescript(f.read())
+    with connection:
+        # Exécuter le script SQL pour créer les tables
+        connection.executescript('''
+        CREATE TABLE IF NOT EXISTS clients (
+            ID_client INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT NOT NULL,
+            prenom TEXT NOT NULL,
+            adresse TEXT NOT NULL
+        );
 
-cur = connection.cursor()
+        CREATE TABLE IF NOT EXISTS Livres (
+            ID_livre INTEGER PRIMARY KEY AUTOINCREMENT,
+            Titre TEXT NOT NULL,
+            Auteur TEXT NOT NULL,
+            Annee_publication INTEGER,
+            Quantite INTEGER NOT NULL CHECK (Quantite >= 0)
+        );
 
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('DUPONT', 'Emilie', '123, Rue des Lilas, 75001 Paris'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('LEROUX', 'Lucas', '456, Avenue du Soleil, 31000 Toulouse'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('MARTIN', 'Amandine', '789, Rue des Érables, 69002 Lyon'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('TREMBLAY', 'Antoine', '1010, Boulevard de la Mer, 13008 Marseille'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('LAMBERT', 'Sarah', '222, Avenue de la Liberté, 59000 Lille'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('GAGNON', 'Nicolas', '456, Boulevard des Cerisiers, 69003 Lyon'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('DUBOIS', 'Charlotte', '789, Rue des Roses, 13005 Marseille'))
-cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('LEFEVRE', 'Thomas', '333, Rue de la Paix, 75002 Paris'))
+        CREATE TABLE IF NOT EXISTS Emprunts (
+            ID_emprunt INTEGER PRIMARY KEY AUTOINCREMENT,
+            ID_utilisateur TEXT NOT NULL,
+            ID_livre INTEGER NOT NULL,
+            Date_emprunt DATE NOT NULL DEFAULT (DATE('now')),
+            Date_retour DATE,
+            Statut TEXT NOT NULL DEFAULT 'Actif',
+            FOREIGN KEY (ID_livre) REFERENCES Livres (ID_livre)
+        );
+        ''')
 
-connection.commit()
-connection.close()
+        # Ajouter quelques données de test pour les livres
+        connection.executemany(
+            'INSERT INTO Livres (Titre, Auteur, Annee_publication, Quantite) VALUES (?, ?, ?, ?)',
+            [
+                ("1984", "George Orwell", 1949, 5),
+                ("Le Petit Prince", "Antoine de Saint-Exupéry", 1943, 3),
+                ("Harry Potter à l'école des sorciers", "J.K. Rowling", 1997, 7),
+                ("Les Misérables", "Victor Hugo", 1862, 4),
+                ("L'Alchimiste", "Paulo Coelho", 1988, 6)
+            ]
+        )
+
+    print("Base de données initialisée avec succès.")
+
+if __name__ == "__main__":
+    init_db()
