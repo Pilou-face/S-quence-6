@@ -34,6 +34,15 @@ def supprimer_livre(id):
     db.session.commit()
     return redirect('/livres')
 
+@app.route('/test/')
+def ReadBDD_2():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients;')
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('search_data.html', data=data)
+
 @app.route('/')
 def HelloWord():
     return render_template('index.html')
