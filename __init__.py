@@ -1,51 +1,29 @@
-from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session
-from flask import render_template
-from flask import json
-from urllib.request import urlopen
-from werkzeug.utils import secure_filename
-import sqlite3
+from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)                                                                                                                  
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Modifier selon le bon chemin
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route('/page1')
-def page1():
-    return render_template('page1.html')
+db = SQLAlchemy(app)
 
-@app.route('/page2')
-def page2():
-    return render_template('page2.html')
+# Modèle de la base de données (à adapter selon la structure du dépôt)
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    author = db.Column(db.String(100), nullable=False)
 
-@app.route('/livres', methods=['GET', 'POST'])
-def afficher_livres():
-    if request.method == 'POST':
-        titre = request.form['titre']
-        auteur = request.form['auteur']
-        annee = request.form['annee_publication']
-        nouveau_livre = Livre(titre=titre, auteur=auteur, annee_publication=annee)
-        db.session.add(nouveau_livre)
-        db.session.commit()
-    livres = Livre.query.all()
-    return render_template('livres.html', livres=livres)
+@app.route('/', methods=['GET', 'POST'])
+def search():
+    query = request.form.get('query', '')
+    books = []
+    if query:
+        books = Book.query.filter((Book.title.contains(query)) | (Book.author.contains(query))).all()
+    return render_template('search.html', books=books, query=query)
 
-@app.route('/supprimer_livre/<int:id>')
-def supprimer_livre(id):
-    livre = Livre.query.get_or_404(id)
-    db.session.delete(livre)
-    db.session.commit()
-    return redirect('/livres')
+if __name__ == '__main__':
+    app.run(debug=True)
 
-@app.route('/test/')
-def ReadBDD_2():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM Livres;')
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('test.html', data=data)
-
-@app.route('/')
-def HelloWord():
-    return render_template('index.html')
 
                                                                                                                                     
 if __name__ == "__main__":
