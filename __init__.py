@@ -21,7 +21,8 @@ def init_db():
         ('1984', 'George Orwell'),
         ('Les Misérables', 'Victor Hugo'),
         ('Harry Potter à l'école des sorciers', 'J.K. Rowling'),
-        ('L'Étranger', 'Albert Camus')]''')
+        ('L'Étranger', 'Albert Camus')'''
+    ])
     conn.commit()
     conn.close()
 
