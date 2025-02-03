@@ -20,8 +20,8 @@ def init_db():
         ('Le Petit Prince', 'Antoine de Saint-Exupéry'),
         ('1984', 'George Orwell'),
         ('Les Misérables', 'Victor Hugo'),
-        ('Harry Potter à l'école des sorciers', 'J.K. Rowling'),
-        ('L'Étranger', 'Albert Camus')'''
+        ('Harry Potter à lécole des sorciers', 'J.K. Rowling'),
+        ('LÉtranger', 'Albert Camus')
     ])
     conn.commit()
     conn.close()
