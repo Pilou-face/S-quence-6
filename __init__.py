@@ -1,25 +1,26 @@
 from flask import Flask, render_template, request
-from flask_sqlalchemy import SQLAlchemy
+import sqlite3
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Modifier selon le bon chemin
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+DATABASE = 'database.db'  # Modifier selon le bon chemin
 
-db = SQLAlchemy(app)
-
-# Modèle de la base de données (à adapter selon la structure du dépôt)
-class Book(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    author = db.Column(db.String(100), nullable=False)
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.route('/', methods=['GET', 'POST'])
 def search():
     query = request.form.get('query', '')
     books = []
     if query:
-        books = Book.query.filter((Book.title.contains(query)) | (Book.author.contains(query))).all()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM books WHERE title LIKE ? OR author LIKE ?", ('%' + query + '%', '%' + query + '%'))
+        books = cursor.fetchall()
+        conn.close()
     return render_template('search.html', books=books, query=query)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
