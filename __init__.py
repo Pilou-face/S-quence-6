@@ -41,7 +41,7 @@ def ReadBDD_2():
     cursor.execute('SELECT * FROM clients;')
     data = cursor.fetchall()
     conn.close()
-    return render_template('search_data.html', data=data)
+    return render_template('test.html', data=data)
 
 @app.route('/')
 def HelloWord():
